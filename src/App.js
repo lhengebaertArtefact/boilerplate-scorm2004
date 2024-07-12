@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import logo from "./logo.svg";
 import "./App.css";
 import Learner from "./components/Learner";
@@ -8,13 +8,14 @@ import CompleteButton from "./components/CompleteButton";
 import Mcq from "./components/Mcq";
 
 function App() {
-  const [learnerName, setLearnerName] = useState("cher visiteur");
+  const [learnerName, setLearnerName] = useState("");
   const [tabKeyPressed, setTabKeyPressed] = useState(false);
   const [assessment, setAssessment] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [quizComplete, setQuizComplete] = useState(false);
-  const [completedObjectives, setCompletedObjectives] = useState([]); // Nouvel état
+  const [completedObjectives, setCompletedObjectives] = useState([]);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const objectiveId = parseInt(searchParams.get("objective"), 10);
 
   const objectives = [
@@ -85,7 +86,7 @@ function App() {
     if (savedData) {
       setCurrentQuestionIndex(savedData.currentQuestionIndex);
       setAssessment(savedData.assessment);
-      setCompletedObjectives(savedData.completedObjectives || []); // Charger les objectifs complétés
+      setCompletedObjectives(savedData.completedObjectives || []);
     }
 
     const handleKeyDown = (event) => {
@@ -119,7 +120,7 @@ function App() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("mousedown", handleMouseDown);
     };
-  }, [objectiveId]);
+  }, []);
 
   const updateAssessment = useCallback(
     (correct, response) => {
@@ -164,17 +165,22 @@ function App() {
     Scorm.setSuccessStatus(isPassed ? "passed" : "failed");
     Scorm.setObjectiveCompletion(`objective_${objectiveId}`, "completed");
 
-    // Ajouter l'objectif actuel à la liste des objectifs complétés
     setCompletedObjectives((prevCompleted) => [...prevCompleted, objectiveId]);
     Scorm.setSuspendData({
       completedObjectives: [...completedObjectives, objectiveId],
     });
 
-    // Réinitialiser l'état du quiz pour l'objectif actuel
     setCurrentQuestionIndex(0);
     setAssessment([]);
     setQuizComplete(false);
-  }, [assessment, currentQuestions.length, objectiveId, completedObjectives]);
+    navigate("/"); // Retour à la page d'accueil
+  }, [
+    assessment,
+    currentQuestions.length,
+    objectiveId,
+    completedObjectives,
+    navigate,
+  ]);
 
   const progressText = `${currentQuestionIndex + 1} / ${
     currentQuestions.length
@@ -182,7 +188,28 @@ function App() {
     ((currentQuestionIndex + 1) / currentQuestions.length) * 100
   )}%)`;
 
-  if (completedObjectives.includes(objectiveId)) {
+  if (searchParams.get("objective")) {
+    if (completedObjectives.includes(objectiveId)) {
+      return (
+        <div className="App">
+          <header className="App-header">
+            <img
+              src={logo}
+              className="App-logo"
+              alt="logo de l'application"
+              tabIndex="0"
+              aria-label="logo de l'application"
+            />
+            <Learner name={learnerName} />
+            <div className="progress">Progress: {progressText}</div>
+          </header>
+          <main>
+            <p>Vous avez déjà complété cet objectif.</p>
+          </main>
+        </div>
+      );
+    }
+
     return (
       <div className="App">
         <header className="App-header">
@@ -197,7 +224,22 @@ function App() {
           <div className="progress">Progress: {progressText}</div>
         </header>
         <main>
-          <p>Vous avez déjà complété cet objectif.</p>
+          {quizComplete ? (
+            <div>
+              <p>Merci d'avoir terminé le quiz!</p>
+              <CompleteButton completeActivity={completeObjective} />
+            </div>
+          ) : (
+            <Mcq
+              key={currentQuestionIndex}
+              result={updateAssessment}
+              question={currentQuestions[currentQuestionIndex]?.question}
+              correctAnswer={
+                currentQuestions[currentQuestionIndex]?.correctAnswer
+              }
+              answers={currentQuestions[currentQuestionIndex]?.answers}
+            />
+          )}
         </main>
       </div>
     );
@@ -214,26 +256,22 @@ function App() {
           aria-label="logo de l'application"
         />
         <Learner name={learnerName} />
-        <div className="progress">Progress: {progressText}</div>
+        <h1>Bienvenue sur le cours</h1>
+        <button
+          onClick={() => navigate("/?objective=1")}
+          disabled={completedObjectives.includes(1)}
+        >
+          Commencer le premier objectif
+        </button>
+        <button
+          onClick={() => navigate("/?objective=2")}
+          disabled={
+            !completedObjectives.includes(1) || completedObjectives.includes(2)
+          }
+        >
+          Commencer le second objectif
+        </button>
       </header>
-      <main>
-        {quizComplete ? (
-          <div>
-            <p>Merci d'avoir terminé le quiz!</p>
-            <CompleteButton completeActivity={completeObjective} />
-          </div>
-        ) : (
-          <Mcq
-            key={currentQuestionIndex}
-            result={updateAssessment}
-            question={currentQuestions[currentQuestionIndex]?.question}
-            correctAnswer={
-              currentQuestions[currentQuestionIndex]?.correctAnswer
-            }
-            answers={currentQuestions[currentQuestionIndex]?.answers}
-          />
-        )}
-      </main>
     </div>
   );
 }
