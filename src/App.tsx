@@ -1,46 +1,60 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import logo from "./logo.svg";
+
 import "./App.css";
 import Learner from "./components/Learner";
 import Scorm from "./scorm/scorm";
 import CompleteButton from "./components/CompleteButton";
 import Mcq from "./components/Mcq";
+import { useTranslation } from "react-i18next";
+import { Objective } from "./types/types";
+import { SHOW_CHANGE_LOCALE } from "./config/config";
 
-function App() {
-  const [learnerName, setLearnerName] = useState("");
-  const [tabKeyPressed, setTabKeyPressed] = useState(false);
-  const [assessment, setAssessment] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [quizComplete, setQuizComplete] = useState(false);
-  const [completedObjectives, setCompletedObjectives] = useState([]);
+const App: React.FC = () => {
+  const { t } = useTranslation();
+
+  const [learnerName, setLearnerName] = useState<string>("");
+  const [tabKeyPressed, setTabKeyPressed] = useState<boolean>(false);
+  const [assessment, setAssessment] = useState<boolean[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+  const [quizComplete, setQuizComplete] = useState<boolean>(false);
+  const [completedObjectives, setCompletedObjectives] = useState<number[]>([]);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const objectiveId = parseInt(searchParams.get("objective"), 10);
+  const objectiveId = parseInt(searchParams.get("objective") || "0", 10);
 
-  const objectives = [
+  const { i18n } = useTranslation();
+
+  const changeLanguage = (lang: any) => {
+    i18n.changeLanguage(lang);
+  };
+
+  const objectives: Objective[] = [
     {
       id: 1,
       questions: [
         {
-          question: "What is 10*10?",
+          question: t("questions.0.question"),
           correctAnswer: 0,
-          answers: ["100", "20"],
+          answers: [t("questions.0.answers.0"), t("questions.0.answers.1")],
         },
         {
-          question: "What is the capital of Spain?",
+          question: t("questions.1.question"),
           correctAnswer: 2,
-          answers: ["Barcelona", "Lisbon", "Madrid"],
+          answers: [
+            t("questions.1.answers.0"),
+            t("questions.1.answers.1"),
+            t("questions.1.answers.2"),
+          ],
         },
         {
-          question:
-            "Which US President's office commissioned the creation of SCORM?",
+          question: t("questions.2.question"),
           correctAnswer: 3,
           answers: [
-            "Donald Trump",
-            "Barack Obama",
-            "Ronald Reagan",
-            "Bill Clinton",
+            t("questions.2.answers.0"),
+            t("questions.2.answers.1"),
+            t("questions.2.answers.2"),
+            t("questions.2.answers.3"),
           ],
         },
       ],
@@ -49,23 +63,27 @@ function App() {
       id: 2,
       questions: [
         {
-          question: "What is 5+5?",
+          question: t("questions.3.question"),
           correctAnswer: 0,
-          answers: ["10", "15"],
+          answers: [t("questions.3.answers.0"), t("questions.3.answers.1")],
         },
         {
-          question: "What is the capital of France?",
+          question: t("questions.4.question"),
           correctAnswer: 1,
-          answers: ["Rome", "Paris", "Berlin"],
+          answers: [
+            t("questions.4.answers.0"),
+            t("questions.4.answers.1"),
+            t("questions.4.answers.2"),
+          ],
         },
         {
-          question: "Who developed the theory of relativity?",
+          question: t("questions.5.question"),
           correctAnswer: 2,
           answers: [
-            "Isaac Newton",
-            "Galileo Galilei",
-            "Albert Einstein",
-            "Nikola Tesla",
+            t("questions.5.answers.0"),
+            t("questions.5.answers.1"),
+            t("questions.5.answers.2"),
+            t("questions.5.answers.3"),
           ],
         },
       ],
@@ -73,14 +91,12 @@ function App() {
   ];
 
   const currentObjective = objectives.find((obj) => obj.id === objectiveId);
-
   const currentQuestions = currentObjective ? currentObjective.questions : [];
 
   useEffect(() => {
-    console.log("Initializing SCORM...");
-    Scorm.init();
-    Scorm.setSuccessStatus("unknown");
-    Scorm.setCompletionStatus("incomplete");
+    Scorm.init(); // Initialisation du SCORM
+    Scorm.setSuccessStatus("unknown"); // mettre le statut de succès à unknown sinon le LMS le met à passed
+    Scorm.setCompletionStatus("incomplete"); // mettre le statut de complétion à incomplete sinon le LMS le met à completed
     const savedData = Scorm.getSuspendData();
 
     if (savedData) {
@@ -89,11 +105,11 @@ function App() {
       setCompletedObjectives(savedData.completedObjectives || []);
     }
 
-    const handleKeyDown = (event) => {
+    const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Tab") {
         setTabKeyPressed(true);
         requestAnimationFrame(() => {
-          const activeElement = document.activeElement;
+          const activeElement: any = document.activeElement;
           if (activeElement) {
             const label =
               activeElement.getAttribute("aria-label") ||
@@ -107,7 +123,7 @@ function App() {
       }
     };
 
-    const handleMouseDown = (event) => {
+    const handleMouseDown = (event: MouseEvent) => {
       event.preventDefault();
       setTabKeyPressed(false);
     };
@@ -123,7 +139,7 @@ function App() {
   }, []);
 
   const updateAssessment = useCallback(
-    (correct, response) => {
+    (correct: boolean, response: string) => {
       setAssessment((prevAssessment) => [...prevAssessment, correct]);
       Scorm.submitMCQ(correct, response);
       const nextIndex = currentQuestionIndex + 1;
@@ -158,7 +174,7 @@ function App() {
     ).length;
     const totalQuestionsAnswered = currentQuestions.length;
     const scorePercent = (correctAnswers / totalQuestionsAnswered) * 100;
-    const scoreScaled = correctAnswers / totalQuestionsAnswered;
+    const scoreScaled: any = correctAnswers / totalQuestionsAnswered;
     Scorm.setScore(scorePercent, 100, 0, scoreScaled);
 
     const isPassed = correctAnswers >= 2;
@@ -188,45 +204,28 @@ function App() {
     ((currentQuestionIndex + 1) / currentQuestions.length) * 100
   )}%)`;
 
-  if (searchParams.get("objective")) {
-    if (completedObjectives.includes(objectiveId)) {
-      return (
-        <div className="App">
-          <header className="App-header">
-            <img
-              src={logo}
-              className="App-logo"
-              alt="logo de l'application"
-              tabIndex="0"
-              aria-label="logo de l'application"
-            />
-            <Learner name={learnerName} />
-            <div className="progress">Progress: {progressText}</div>
-          </header>
-          <main>
-            <p>Vous avez déjà complété cet objectif.</p>
-          </main>
-        </div>
-      );
-    }
+  return (
+    <div className="App">
+      <header className="App-header">
+        <Learner name={learnerName} />
+        {SHOW_CHANGE_LOCALE && (
+          <div>
+            <button onClick={() => changeLanguage("en")}>English</button>
+            <button onClick={() => changeLanguage("fr")}>Français</button>
+          </div>
+        )}
 
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img
-            src={logo}
-            className="App-logo"
-            alt="logo de l'application"
-            tabIndex="0"
-            aria-label="logo de l'application"
-          />
-          <Learner name={learnerName} />
+        {searchParams.get("objective") && (
           <div className="progress">Progress: {progressText}</div>
-        </header>
-        <main>
-          {quizComplete ? (
+        )}
+      </header>
+      <main>
+        {searchParams.get("objective") ? (
+          completedObjectives.includes(objectiveId) ? (
+            <p>{t("objectiveCompleted")}</p>
+          ) : quizComplete ? (
             <div>
-              <p>Merci d'avoir terminé le quiz!</p>
+              <p>{t("buttons.completeQuiz")}</p>
               <CompleteButton completeActivity={completeObjective} />
             </div>
           ) : (
@@ -239,41 +238,30 @@ function App() {
               }
               answers={currentQuestions[currentQuestionIndex]?.answers}
             />
-          )}
-        </main>
-      </div>
-    );
-  }
-
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img
-          src={logo}
-          className="App-logo"
-          alt="logo de l'application"
-          tabIndex="0"
-          aria-label="logo de l'application"
-        />
-        <Learner name={learnerName} />
-        <h1>Bienvenue sur le cours</h1>
-        <button
-          onClick={() => navigate("/?objective=1")}
-          disabled={completedObjectives.includes(1)}
-        >
-          Commencer le premier objectif
-        </button>
-        <button
-          onClick={() => navigate("/?objective=2")}
-          disabled={
-            !completedObjectives.includes(1) || completedObjectives.includes(2)
-          }
-        >
-          Commencer le second objectif
-        </button>
-      </header>
+          )
+        ) : (
+          <>
+            <h1>{t("welcome")}</h1>
+            <button
+              onClick={() => navigate("/?objective=1")}
+              disabled={completedObjectives.includes(1)}
+            >
+              {t("buttons.startObjective1")}
+            </button>
+            <button
+              onClick={() => navigate("/?objective=2")}
+              disabled={
+                !completedObjectives.includes(1) ||
+                completedObjectives.includes(2)
+              }
+            >
+              {t("buttons.startObjective2")}
+            </button>
+          </>
+        )}
+      </main>
     </div>
   );
-}
+};
 
 export default App;

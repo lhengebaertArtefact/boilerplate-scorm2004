@@ -1,70 +1,54 @@
-# Getting Started with Create React App
+# Intégration SCORM 2004 dans une application React
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Ce projet montre comment intégrer SCORM 2004 dans une application React. SCORM (Sharable Content Object Reference Model) est un ensemble de standards qui permet de partager et de réutiliser des contenus e-learning à travers différents systèmes. Ce guide explique chaque fonction, son utilité, et comment utiliser le module pour interagir avec un Learning Management System (LMS) compatible avec SCORM 2004.
 
-## Available Scripts
+## Démarrage
 
-In the project directory, you can run:
+### Aperçu des fonctions SCORM
 
-### `npm start`
+L'objet `Scorm` de ce projet fournit plusieurs fonctions essentielles pour interagir avec un LMS compatible SCORM 2004. Voici une explication détaillée de chaque fonction.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **init()** --> Initialise la communication avec le LMS. Cette fonction doit être appelée lors du chargement du cours pour établir une connexion avec le LMS.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **getLearnerName()** --> Récupère le nom de l'apprenant à partir du LMS.
 
-### `npm test`
+- **submitMCQ(correct, response)** --> Enregistre la réponse de l'apprenant pour une question à choix multiple (MCQ). Cette fonction crée une nouvelle interaction dans le SCORM pour suivre la réponse et si elle est correcte ou incorrecte.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- **setScormData(key, value)** --> Définit une valeur spécifique dans le SCORM. Utilisé pour enregistrer diverses informations comme le score, le statut de progression, etc.
 
-### `npm run build`
+- **setSuspendData(data)** --> Sauvegarde les données dans le SCORM, permettant à l'apprenant de reprendre la session là où elle a été interrompue.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **getSuspendData()** --> Récupère les données sauvegardées pour restaurer l'état de progression de l'apprenant.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **setProgress(progress)** --> Définit la mesure de progression de l'apprenant. Utilisé pour indiquer le pourcentage de progression dans le cours.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- **setScore(score, maxScore = 100, minScore = 0, scaledScore = null)** --> Définit le score de l'apprenant. Vous pouvez spécifier le score brut (`raw`), le score maximum (`max`), et le score minimum (`min`). Un score `scaled` peut également être défini pour représenter un pourcentage (entre 0 et 1).
 
-### `npm run eject`
+- **setCompletionStatus(status)** --> Définit le statut de complétion du cours. Les statuts possibles sont `"completed"`, `"incomplete"`, etc.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- **setSuccessStatus(status)** --> Définit le statut de réussite de l'apprenant. Les statuts possibles sont `"passed"`, `"failed"`, etc.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **setObjectiveCompletion(identifier, status)** --> Définit le statut de complétion pour un objectif spécifique dans le cours.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- **completeAndCloseCourse()** --> Sauvegarde les données et ferme la communication avec le LMS. Cette fonction doit être appelée lorsque le cours est terminé pour s'assurer que toutes les données sont correctement sauvegardées.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Création et empaquetage du cours
 
-## Learn More
+- **Préparer les fichiers SCORM :** Incluez le fichier `imsmanifest.xml` et autres fichiers SCORM dans le répertoire `build`.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- **Compiler le projet :** Exécutez la commande pour compiler le projet React :
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+  npm run build
+```
 
-### Code Splitting
+- **Créer le fichier .zip :** Accédez au répertoire build et compressez le contenu en un fichier .zip :
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+ cd build
+ zip -r ../course-package.zip
+```
 
-### Analyzing the Bundle Size
+- Assurez-vous que le fichier imsmanifest.xml est à la racine du fichier .zip.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Télécharger sur le LMS : Téléchargez le fichier .zip sur le LMS pour déployer le cours.

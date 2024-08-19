@@ -48,10 +48,6 @@ let Scorm = {
     SCORM.save(); // Assurez-vous de sauvegarder après la mise à jour du score
   },
 
-  // setScore(correctAnswers, totalQuestions) {
-  //   this.setScormData("cmi.score.raw", (correctAnswers / totalQuestions) * 100); // Convertir en pourcentage pour SCORM
-  // },
-
   setCompletionStatus(status) {
     this.setScormData("cmi.completion_status", status);
   },
@@ -66,23 +62,22 @@ let Scorm = {
       this.setScormData(`cmi.objectives.${index}.completion_status`, status);
     }
   },
-
-  getObjectiveIndex(identifier) {
-    const count = SCORM.get("cmi.objectives._count", true);
-    for (let i = 0; i < count; i++) {
-      const id = SCORM.get(`cmi.objectives.${i}.id`);
-      if (id === identifier) {
-        return i;
-      }
-    }
-    return -1;
-  },
-
   completeAndCloseCourse() {
     SCORM.save();
     SCORM.quit();
     window.close(); // Ferme la fenêtre du cours
   },
+
+  // getObjectiveIndex(identifier) {                                             // get objective index
+  //   const count = SCORM.get("cmi.objectives._count", true);
+  //   for (let i = 0; i < count; i++) {
+  //     const id = SCORM.get(`cmi.objectives.${i}.id`);
+  //     if (id === identifier) {
+  //       return i;
+  //     }
+  //   }
+  //   return -1;
+  // },
 };
 
 export default Scorm;

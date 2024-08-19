@@ -1,0 +1,60 @@
+{
+    "questions": [
+        {
+            "question": "Quelle est la réponse à 10*10?",
+            "answers": [
+                "100",
+                "20"
+            ]
+        },
+        {
+            "question": "Quelle est la capitale de l'Espagne?",
+            "answers": [
+                "Barcelone",
+                "Lisbonne",
+                "Madrid"
+            ]
+        },
+        {
+            "question": "Quel bureau présidentiel américain a commandé la création du SCORM?",
+            "answers": [
+                "Donald Trump",
+                "Barack Obama",
+                "Ronald Reagan",
+                "Bill Clinton"
+            ]
+        },
+        {
+            "question": "Quelle est la réponse à 5+5?",
+            "answers": [
+                "10",
+                "15"
+            ]
+        },
+        {
+            "question": "Quelle est la capitale de la France?",
+            "answers": [
+                "Rome",
+                "Paris",
+                "Berlin"
+            ]
+        },
+        {
+            "question": "Qui a développé la théorie de la relativité?",
+            "answers": [
+                "Isaac Newton",
+                "Galileo Galilei",
+                "Albert Einstein",
+                "Nikola Tesla"
+            ]
+        }
+    ],
+    "buttons": {
+        "startObjective1": "Commencer le premier objectif",
+        "startObjective2": "Commencer le second objectif"
+    },
+    "welcome": "Bienvenue sur le cours",
+    "appLogoAlt": "logo de l'application",
+    "objectiveCompleted": "Vous avez déjà complété cet objectif.",
+    "buttons.completeQuiz": "Merci d'avoir terminé le quiz!"
+}

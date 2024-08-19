@@ -26,6 +26,7 @@
       </item>
       <item identifier="i2" identifierref="r2" isvisible="true">
         <title>Quiz Objective 2</title>
+        <video> vidéo explicative</video> 
         <imsss:sequencing>
           <imsss:objectives>
             <imsss:primaryObjective objectiveID="objective_2">
