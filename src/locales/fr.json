@@ -56,5 +56,6 @@
     "welcome": "Bienvenue sur le cours",
     "appLogoAlt": "logo de l'application",
     "objectiveCompleted": "Vous avez déjà complété cet objectif.",
+    "courseCompleted": "Le cours est terminé !",
     "buttons.completeQuiz": "Merci d'avoir terminé le quiz!"
 }
